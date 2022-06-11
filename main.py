@@ -6,6 +6,10 @@ from urllib.parse import urljoin
 
 URL = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/"
 
+BOOK_INFORMATION = ["product_page_url", "universal_ product_code (upc)", "title", "price_including_tax",
+                    "price_excluding_tax", "number_available", "product_description", "category", "review_rating",
+                    "image_url"]
+
 
 class Book:
 
@@ -66,5 +70,3 @@ class Book:
 
 
 book = Book(URL)
-
-
