@@ -86,7 +86,7 @@ class Book:
 
 book = Book(URL)
 
-with open(CSV_FILE, 'w') as csv_file:
+with open(CSV_FILE, 'w', newline='') as csv_file:
     writer = csv.writer(csv_file, delimiter=',')
     writer.writerow(BOOK_INFORMATION)
     rows = []
