@@ -1,4 +1,5 @@
 # coding: utf-8
+import csv
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -9,6 +10,20 @@ URL = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/"
 BOOK_INFORMATION = ["product_page_url", "universal_ product_code (upc)", "title", "price_including_tax",
                     "price_excluding_tax", "number_available", "product_description", "category", "review_rating",
                     "image_url"]
+
+book_information_result = {"product_page_url": "get_url",
+                           "universal_ product_code (upc)": "get_upc",
+                           "title": "get_title",
+                           "price_including_tax": "get_price",
+                           "price_excluding_tax": "get_price_tax_free",
+                           "number_available": "get_availability",
+                           "product_description": "get_description",
+                           "category": "get_category",
+                           "review_rating": "get_review_rating",
+                           "image_url": "get_image_url"
+                           }
+
+CSV_FILE = './output.csv'
 
 
 class Book:
@@ -57,7 +72,7 @@ class Book:
         category = category_tag.string
         return category
 
-    def get_review(self):
+    def get_review_rating(self):
         review_tag = self.soup.find("p", class_=re.compile('star-rating'))
         review = review_tag['class'][-1]
         return review
@@ -70,3 +85,12 @@ class Book:
 
 
 book = Book(URL)
+
+with open(CSV_FILE, 'w') as csv_file:
+    writer = csv.writer(csv_file, delimiter=',')
+    writer.writerow(BOOK_INFORMATION)
+    rows = []
+    for i in book_information_result:
+        toto = getattr(Book, book_information_result[i])
+        rows.append(toto(book))
+    writer.writerow(rows)
