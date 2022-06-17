@@ -6,23 +6,6 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 URL = "http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/"
-
-BOOK_INFORMATION = ["product_page_url", "universal_ product_code (upc)", "title", "price_including_tax",
-                    "price_excluding_tax", "number_available", "product_description", "category", "review_rating",
-                    "image_url"]
-
-book_information_result = {"product_page_url": "get_url",
-                           "universal_ product_code (upc)": "get_upc",
-                           "title": "get_title",
-                           "price_including_tax": "get_price",
-                           "price_excluding_tax": "get_price_tax_free",
-                           "number_available": "get_availability",
-                           "product_description": "get_description",
-                           "category": "get_category",
-                           "review_rating": "get_review_rating",
-                           "image_url": "get_image_url"
-                           }
-
 CSV_FILE = './output.csv'
 
 
@@ -34,63 +17,76 @@ class Book:
         self.soup = BeautifulSoup(self.page.content, 'html.parser')
 
     def get_url(self):
-        return self.url
+        return {"product_page_url": self.url}
 
     def get_upc(self):
         upc_tag = self.soup.find("th", string="UPC")  # find tag by string
         upc = upc_tag.find_next().string
-        return upc
+        return {"universal_product_code (upc)": upc}
 
     def get_title(self):
         title_tag = self.soup.find("h1")
         title = title_tag.string
-        return title
+        return {"title": title}
 
     def get_price(self):
         price_tag = self.soup.find("th", string="Price (incl. tax)")  # find tag by string
         price = price_tag.find_next().string
-        return price
+        return {"price_including_tax": price}
 
     def get_price_tax_free(self):
         price_tax_free_tag = self.soup.find("th", string="Price (excl. tax)")  # find tag by string
         price_tax_free = price_tax_free_tag.find_next().string
-        return price_tax_free
+        return {"price_excluding_tax": price_tax_free}
 
     def get_availability(self):
         availability_tag = self.soup.find("th", string="Availability")
         availability = availability_tag.find_next().string
-        return availability
+        return {"number_available": availability}
 
     def get_description(self):
         description_tag = self.soup.find(id="product_description")
         description = description_tag.find_next("p").string
-        return description
+        return {"product_description": description}
 
     def get_category(self):
         category_parent_tag = self.soup.find("ul")
         category_tag = category_parent_tag.find_all_next("a")[-1]
         category = category_tag.string
-        return category
+        return {"category": category}
 
     def get_review_rating(self):
         review_tag = self.soup.find("p", class_=re.compile('star-rating'))
         review = review_tag['class'][-1]
-        return review
+        return {"review_rating": review}
 
     def get_image_url(self):
         image_url_tag = self.soup.find("img")
         image_relative_url = image_url_tag['src']
         image_url = urljoin(self.url, image_relative_url)
-        return image_url
+        return {"image_url": image_url}
+
+    def get_informations(self):
+        informations = {}
+        informations.update(self.get_url())
+        informations.update(self.get_upc())
+        informations.update(self.get_title())
+        informations.update(self.get_price())
+        informations.update(self.get_price_tax_free())
+        informations.update(self.get_availability())
+        informations.update(self.get_description())
+        informations.update(self.get_category())
+        informations.update(self.get_review_rating())
+        informations.update(self.get_image_url())
+        return informations
 
 
 book = Book(URL)
 
 with open(CSV_FILE, 'w', newline='') as csv_file:
-    writer = csv.writer(csv_file, delimiter=',')
-    writer.writerow(BOOK_INFORMATION)
-    rows = []
-    for i in book_information_result:
-        toto = getattr(Book, book_information_result[i])
-        rows.append(toto(book))
-    writer.writerow(rows)
+    book_info = [book.get_informations()]
+    csv_columns = list(book.get_informations().keys())
+    writer = csv.DictWriter(csv_file, delimiter=';', fieldnames=csv_columns)
+    writer.writeheader()
+    for data in book_info:
+        writer.writerow(data)
