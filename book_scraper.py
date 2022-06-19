@@ -41,7 +41,10 @@ class Book:
 
     def get_description(self):
         description_tag = self.soup.find(id="product_description")
-        description = description_tag.find_next("p").string
+        if description_tag is not None:
+            description = description_tag.find_next("p").string
+        else:
+            description = ""
         return {"product_description": description}
 
     def get_category(self):
