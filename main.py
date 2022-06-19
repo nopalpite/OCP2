@@ -50,7 +50,7 @@ print("processing ...")
 
 for category in get_book_categories(ROOT_URL):
     category_name = get_category_name(category)
-    csv_file = "./" + category_name + "csv"
+    csv_file = "./" + category_name + ".csv"
     with open(csv_file, 'w', newline='', encoding="utf-8") as csv_file:
         csv_columns = ['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax',
                        'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating',
