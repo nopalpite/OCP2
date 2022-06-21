@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 import csv
 import requests
 from bs4 import BeautifulSoup
@@ -46,11 +47,13 @@ def get_category_name(url):
     soup = BeautifulSoup(page.content, 'html.parser')
     return soup.find("h1").string
 
+
 print("processing ...")
 
 for category in get_book_categories(ROOT_URL):
     category_name = get_category_name(category)
-    csv_file = "./" + category_name + ".csv"
+    csv_file = "./data/" + category_name + "/" + category_name + ".csv"
+    os.makedirs(os.path.dirname(csv_file), exist_ok=True)
     with open(csv_file, 'w', newline='', encoding="utf-8") as csv_file:
         csv_columns = ['product_page_url', 'universal_product_code (upc)', 'title', 'price_including_tax',
                        'price_excluding_tax', 'number_available', 'product_description', 'category', 'review_rating',
@@ -63,9 +66,5 @@ for category in get_book_categories(ROOT_URL):
             books_url.append(book.get_informations())
         writer.writerows(books_url)
     print(category_name + " csv created")
-
-
-
-
 
 print("... job done")
