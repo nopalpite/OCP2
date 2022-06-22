@@ -55,7 +55,13 @@ class Book:
 
     def get_review_rating(self):
         review_tag = self.soup.find("p", class_=re.compile('star-rating'))
-        review = review_tag['class'][-1]
+        review_string = review_tag['class'][-1]
+        review_dict = {"One": 1,
+                       "Two": 2,
+                       "Three": 3,
+                       "Four": 4,
+                       "Five": 5}
+        review = review_dict[review_string]
         return {"review_rating": review}
 
     def get_image_url(self):
