@@ -15,7 +15,7 @@ class Book:
         return {"product_page_url": self.url}
 
     def get_upc(self):
-        upc_tag = self.soup.find("th", string="UPC")  # find tag by string
+        upc_tag = self.soup.find("th", string="UPC")
         upc = upc_tag.find_next().string
         return {"universal_product_code (upc)": upc}
 
@@ -25,12 +25,12 @@ class Book:
         return {"title": title}
 
     def get_price(self):
-        price_tag = self.soup.find("th", string="Price (incl. tax)")  # find tag by string
+        price_tag = self.soup.find("th", string="Price (incl. tax)")
         price = price_tag.find_next().string
         return {"price_including_tax": price}
 
     def get_price_tax_free(self):
-        price_tax_free_tag = self.soup.find("th", string="Price (excl. tax)")  # find tag by string
+        price_tax_free_tag = self.soup.find("th", string="Price (excl. tax)")
         price_tax_free = price_tax_free_tag.find_next().string
         return {"price_excluding_tax": price_tax_free}
 
