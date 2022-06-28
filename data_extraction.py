@@ -1,7 +1,10 @@
 import csv
 import os
+
+import requests
+
 from book_scraper import Book
-from category_scraper import *
+from category_scraper import get_book_categories, get_category_name, get_books_from_category
 
 
 def data_extraction(url):
@@ -23,8 +26,8 @@ def data_extraction(url):
             for book_url in get_books_from_category(category):
                 book = Book(book_url)
                 books_url.append(book.get_informations())
-                page = requests.get(book.get_image_url()["image_url"])
-                with open(img_path + book.get_upc()["universal_product_code (upc)"] + ".jpg", 'wb') as img:
+                page = requests.get(book.image_url)
+                with open(img_path + book.upc + ".jpg", 'wb') as img:
                     img.write(page.content)
 
             writer.writerows(books_url)
