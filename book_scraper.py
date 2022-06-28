@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -11,49 +12,46 @@ class Book:
         self.page = requests.get(url)
         self.soup = BeautifulSoup(self.page.content, 'html.parser')
 
-    def get_url(self):
-        return {"product_page_url": self.url}
-
-    def get_upc(self):
+    @property
+    def upc(self):
         upc_tag = self.soup.find("th", string="UPC")
-        upc = upc_tag.find_next().string
-        return {"universal_product_code (upc)": upc}
+        return upc_tag.find_next().string
 
-    def get_title(self):
+    @property
+    def title(self):
         title_tag = self.soup.find("h1")
-        title = title_tag.string
-        return {"title": title}
+        return title_tag.string
 
-    def get_price(self):
+    @property
+    def price(self):
         price_tag = self.soup.find("th", string="Price (incl. tax)")
-        price = price_tag.find_next().string
-        return {"price_including_tax": price}
+        return price_tag.find_next().string
 
-    def get_price_tax_free(self):
+    @property
+    def price_without_tax(self):
         price_tax_free_tag = self.soup.find("th", string="Price (excl. tax)")
-        price_tax_free = price_tax_free_tag.find_next().string
-        return {"price_excluding_tax": price_tax_free}
+        return price_tax_free_tag.find_next().string
 
-    def get_availability(self):
+    @property
+    def availability(self):
         availability_tag = self.soup.find("th", string="Availability")
-        availability = availability_tag.find_next().string
-        return {"number_available": availability}
+        return availability_tag.find_next().string
 
-    def get_description(self):
+    @property
+    def description(self):
         description_tag = self.soup.find(id="product_description")
         if description_tag is not None:
-            description = description_tag.find_next("p").string
-        else:
-            description = ""
-        return {"product_description": description}
+            return description_tag.find_next("p").string
+        return ""
 
-    def get_category(self):
+    @property
+    def category(self):
         category_parent_tag = self.soup.find("ul")
         category_tag = category_parent_tag.find_all_next("a")[-1]
-        category = category_tag.string
-        return {"category": category}
+        return category_tag.string
 
-    def get_review_rating(self):
+    @property
+    def review_rating(self):
         review_tag = self.soup.find("p", class_=re.compile('star-rating'))
         review_string = review_tag['class'][-1]
         review_dict = {"One": 1,
@@ -61,25 +59,24 @@ class Book:
                        "Three": 3,
                        "Four": 4,
                        "Five": 5}
-        review = review_dict[review_string]
-        return {"review_rating": review}
+        return review_dict[review_string]
 
-    def get_image_url(self):
+    @property
+    def image_url(self):
         image_url_tag = self.soup.find("img")
         image_relative_url = image_url_tag['src']
-        image_url = urljoin(self.url, image_relative_url)
-        return {"image_url": image_url}
+        return urljoin(self.url, image_relative_url)
 
     def get_informations(self):
-        informations = {}
-        informations.update(self.get_url())
-        informations.update(self.get_upc())
-        informations.update(self.get_title())
-        informations.update(self.get_price())
-        informations.update(self.get_price_tax_free())
-        informations.update(self.get_availability())
-        informations.update(self.get_description())
-        informations.update(self.get_category())
-        informations.update(self.get_review_rating())
-        informations.update(self.get_image_url())
-        return informations
+        return {
+            'product_page_url': self.url,
+            'universal_product_code (upc)': self.upc,
+            'title': self.title,
+            'price_including_tax': self.price,
+            'price_excluding_tax': self.price_without_tax,
+            'number_available': self.availability,
+            'product_description': self.description,
+            'category': self.category,
+            'review_rating': self.review_rating,
+            'image_url': self.image_url
+        }
