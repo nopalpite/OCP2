@@ -18,6 +18,7 @@ class Book:
         upc_tag = self.soup.find("th", string="UPC")
         upc = upc_tag.find_next().string
         return upc
+
     def get_title(self):
         title_tag = self.soup.find("h1")
         title = title_tag.string
@@ -71,14 +72,14 @@ class Book:
 
     def get_informations(self):
         return {
-            'product_page_url': self.url,
-            'universal_product_code (upc)': self.get_upc,
-            'title': self.get_title,
-            'price_including_tax': self.get_price,
-            'price_excluding_tax': self.get_price_tax_free,
-            'number_available': self.get_availability,
-            'product_description': self.get_description,
-            'category': self.get_category,
-            'review_rating': self.get_review_rating,
-            'image_url': self.get_image_url
+            'product_page_url': self.get_url(),
+            'universal_product_code (upc)': self.get_upc(),
+            'title': self.get_title(),
+            'price_including_tax': self.get_price(),
+            'price_excluding_tax': self.get_price_tax_free(),
+            'number_available': self.get_availability(),
+            'product_description': self.get_description(),
+            'category': self.get_category(),
+            'review_rating': self.get_review_rating(),
+            'image_url': self.get_image_url()
         }
